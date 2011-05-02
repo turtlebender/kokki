@@ -16,22 +16,26 @@ def build_parser():
     parser.add_option('-v', action='store_true', dest='verbose', default=False)
     return parser
 
-def process_role(kit, json_role, file_cache_path):
+def process_role_file(kit, json_role, file_cache_path):
     fp = open(os.path.join(file_cache_path, 'roles', json_role))
     try:
         role = json.load(fp)
+        process_role(kit, role, file_cache_path)
     finally:
         fp.close()
-    kit.config.update(role['data'])
 
-    for run_item in role['run_list']:
+
+
+def process_role(kit, descriptor, file_cache_path):
+    for run_item in descriptor['run_list']:
         recipe_match = recipe.match(run_item)
         if recipe_match:
-            kit.include_recipe(recipe_match.group(0))
+            kit.include_recipe(recipe_match.group(1))
             continue
         role_match = role.match(run_item)
         if role_match:
-            process_role(kit, role_match.group(0), file_cache_path)
+            process_role_file(kit, '%s.json' % role_match.group(1), file_cache_path)
+    kit.config.update(descriptor['data'])
 
 def main():
     parser = build_parser()
@@ -67,15 +71,7 @@ def main():
         fp.close()
     kit = Kitchen()
     kit.add_cookbook_path(cookbook_path)
-    run_list = descriptor['run_list']
-    for run_item in run_list:
-        recipe_match = recipe.match(run_item)
-        if recipe_match:
-            kit.include_recipe(recipe_match.group(1))
-            continue
-        role_match = role.match(run_item)
-        if role_match:
-            process_role(kit, role_match.group(1), file_cache_path)
+    process_role(kit, descriptor, file_cache_path)
     kit.run()
 
 if __name__ == "__main__":
