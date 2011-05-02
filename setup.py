@@ -16,7 +16,8 @@ setup(
     test_suite = "tests",
     entry_points = {
         "console_scripts": [
-            "kokki = kokki.command:main",
+            "kokki = kokki.turtlekokki:main",
+            "kokki-solo = kokki.kokki_solo:main",
         ],
     },
     classifiers = [
@@ -30,3 +31,4 @@ setup(
         'jinja2',
     ],
 )
+
