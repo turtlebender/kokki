@@ -30,6 +30,7 @@ def rUpdate(targetDict, itemDict):
             if type(val) == type({}):
                 if not key in targetDict:
                     newTarget = {}
+                    targetDict[key] = newTarget
                 else:
                     newTarget = targetDict[key]
                 rUpdate(newTarget, val)
