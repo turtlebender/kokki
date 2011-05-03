@@ -82,9 +82,9 @@ class DownloadSource(Source):
         self.url = url
         self.md5sum = md5sum
         self.cache = cache
-        if not 'download_path' in env.config:
-            env.config.download_path = '/var/tmp/downloads'
-        if not os.path.exists(env.config.download_path):
+        if not 'download_path' in self.env.config:
+            self.env.config.download_path = '/var/tmp/downloads'
+        if not os.path.exists(self.env.config.download_path):
             os.makedirs(self.env.config.download_path)
 
     def get_content(self):

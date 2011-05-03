@@ -24,7 +24,17 @@ def process_role_file(kit, json_role, file_cache_path):
     finally:
         fp.close()
 
-
+def rUpdate(targetDict, itemDict):
+        "Recursively updates nested dicts"
+        for key, val in itemDict.items():
+            if type(val) == type({}):
+                if not key in targetDict:
+                    newTarget = {}
+                else:
+                    newTarget = targetDict[key]
+                rUpdate(newTarget, val)
+            else:
+                targetDict[key] = val
 
 def process_role(kit, descriptor, file_cache_path):
     for run_item in descriptor['run_list']:
@@ -35,7 +45,7 @@ def process_role(kit, descriptor, file_cache_path):
         role_match = role.match(run_item)
         if role_match:
             process_role_file(kit, '%s.json' % role_match.group(1), file_cache_path)
-    kit.config.update(descriptor['data'])
+    rUpdate(kit.config, descriptor['data'])
 
 def main():
     parser = build_parser()
@@ -49,6 +59,14 @@ def main():
         logger = logging.getLogger('kokki')
         logger.setLevel(logging.DEBUG)
     config_file = options.config
+    if not os.path.exists(config_file):
+        if os.path.exists('/etc/kokki/config.ini'):
+            config_file = '/etc/kokki/config.ini'
+        elif os.path.exists('/etc/kokki/config.cfg'):
+            config_file = '/etc/kokki/config.cfg'
+        else:
+            print "Config File required"
+            return -1
     parser = SafeConfigParser()
     parser.read(config_file)
     if not parser.has_option('kokki', 'file_cache_path'):
